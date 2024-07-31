@@ -7,23 +7,27 @@ datas = 1;
 load(strcat('DatasGravity', int2str(datas)), 'DATA');
 
 % Dataset order of patterns based on current fold (fold = row of indexes)
-folderNumber = size(DATA{3}, 1);
 datasetFolder = DATA{3};
+folderNumber = size(datasetFolder, 1);
 
 % Prepare dataset for split between training and test set
-trainSize = DATA{4};
 totalSize = DATA{5};
+trainValidationSize = DATA{4};
+% Number of instances per dataset
+trainSize = floor(trainValidationSize * 0.9);
+valSize = trainValidationSize - trainSize;
+testSize = totalSize - trainSize - valSize;
 
-% Retrieve all labels and patterns
-y_true = DATA{2};
+% Retrieve all patterns and labels
 x_true = DATA{1};
+y_true = DATA{2};
 
 % Load pre-trained AlexNet
-%netAlex = alexnet;
-%inputSize = [227 227];
+% netAlex = alexnet;
+% inputSize = [227 227];
 
 % Transfer of AlexNet pretrained layers
-%layersTransfer = netAlex.Layers(2 : 9);
+% layersTransfer = netAlex.Layers(2 : 9);
 
 % Load pre-trained AlexNet
 net = [
@@ -68,86 +72,105 @@ net = [
     softmaxLayer('Name', 'softmax');
     classificationLayer('Name', 'output');
 ];
-inputSize = [210 250];
 
-% Training parameters
-miniBatchSize = 30;
-learningRate = 1e-4;
-optimizer = 'sgdm';
-options = trainingOptions(optimizer,...
-    'MiniBatchSize',miniBatchSize,...
-    'MaxEpochs',30,...
-    'InitialLearnRate',learningRate,...
-    'Verbose',false,...
-    'Plots','training-progress');
-numIterationsPerEpoch = floor(trainSize/miniBatchSize);
+% Network input image size
+% NOTE: different size with respect to paper for a faster training for testing
+inputSize = [210 250 3];
 
 % For each folder
 for fold = 1 : folderNumber
     close all force
     
-    % Dataset train-test split on current fold
-    trainPatternIndexes = (datasetFolder(fold, 1 : trainSize));
-    testPatternIndexes = (datasetFolder(fold, trainSize + 1 : totalSize));
-    y_fold = y_true(trainPatternIndexes);
+    % Dataset train-validation-test split on current fold
+    % REMOVED: parenthesis
+    trainPatternIndexes = datasetFolder(fold, 1 : trainSize);
+    validationPatternIndexes = datasetFolder(fold, trainSize + 1 : trainValidationSize);
+    testPatternIndexes = datasetFolder(fold, trainValidationSize + 1 : totalSize);
+    % Label indexes to pick
+    y_fold_train = y_true(trainPatternIndexes);
+    y_fold_validation = y_true(validationPatternIndexes);
     y_fold_test = y_true(testPatternIndexes);
-    numClasses = max(y_fold);
     
-    % Dataset train-validation split
-    valSize = floor(trainSize * 0.1);
+    % Number of possible classes
+    % CHANGE: from max(y_fold_train)
+    numClasses = 22;
     
-
     % Create training set
-    clear nome trainingImages
+    % ADDITION: uint8 conversione to check
+    clear trainingImages
     for pattern = 1 : trainSize
         image = x_true{datasetFolder(fold, pattern)};
         
         % Rescale of image to a standard size for the CNN
         image = imresize(image, [inputSize(1) inputSize(2)]);
-        if size(image, 3) == 1
-            image(:, :, 2) = image;
-            image(:, :, 3) = image(:, :, 1);
-        end
 
         % Add image to training set
-        trainingImages(:, :, :, pattern) = image;
+        trainingImages(:, :, :, pattern) = uint8(image);
     end
 
-
     % Get image size
-    imageSize = size(image);
-    
+    imageSize = inputSize;
+
     % Data augmentation
-    imageAugmenter = imageDataAugmenter( ...
-        'RandXReflection',true, ...
-        'RandXScale',[1 2]);
-    trainingImages = augmentedImageDatastore(imageSize, trainingImages, categorical(y_fold'), 'DataAugmentation', imageAugmenter);
+    imageAugmenter = imageDataAugmenter(...
+        'RandXReflection', true, ...
+        'RandXScale', [1 2]);
+    trainingImages = augmentedImageDatastore(imageSize, trainingImages, categorical(y_fold_train'), 'DataAugmentation', imageAugmenter);
     
     % Net tuning
     % The last three layers of the pretrained network net are configured for 1000 classes.
     % These three layers must be fine-tuned for the new classification problem. Extract all layers, except the last three, from the pretrained network.
-    %layersTransfer = net.Layers(1 : end-3);
-    %layers = [
+    % layersTransfer = net.Layers(1 : end-3);
+    % layers = [
     %    layersTransfer
     %    fullyConnectedLayer(numClasses, 'WeightLearnRateFactor', 20, 'BiasLearnRateFactor', 20)
     %    softmaxLayer
     %    classificationLayer];
-    netTransfer = trainNetwork(trainingImages, net, options);
     
-    % Create test set
-    clear nome test testImages
-    for pattern = ceil(trainSize) + 1 : ceil(totalSize)
+    % Create validation set
+    clear validationImages
+    for pattern = trainSize + 1 : trainValidationSize
         image = x_true{datasetFolder(fold, pattern)};
 
         % Rescale of image to a standard size for the CNN
         image = imresize(image, [inputSize(1) inputSize(2)]);
-        if size(image, 3) == 1
-            image(:, :, 2) = image;
-            image(:, :, 3) = image(:, :, 1);
-        end
 
         % Add image to test set
-        testImages(:, :, :, pattern - ceil(trainSize)) = uint8(image);
+        validationImages(:, :, :, pattern - trainSize) = uint8(image);
+    end
+
+    % Training parameters
+    miniBatchSize = 30;
+    maxEpochs = 30;
+    learningRate = 1e-4;
+    optimizer = 'sgdm';
+    valFrequency = 50;
+    options = trainingOptions(optimizer, ...
+        'MiniBatchSize', miniBatchSize, ...
+        'MaxEpochs', maxEpochs, ...
+        'InitialLearnRate', learningRate, ...
+        'ValidationData', {validationImages, categorical(y_fold_validation')}, ...
+        'ValidationFrequency', valFrequency, ...
+        'OutputNetwork', 'best-validation', ...
+        'Plots', 'training-progress', ...
+        'Verbose', false);
+
+    % NOTE: useless?
+    % numIterationsPerEpoch = floor(trainSize/miniBatchSize);
+
+    % Network training
+    netTransfer = trainNetwork(trainingImages, net, options);
+
+    % Create test set
+    clear testImages
+    for pattern = trainValidationSize + 1 : totalSize
+        image = x_true{datasetFolder(fold, pattern)};
+
+        % Rescale of image to a standard size for the CNN
+        image = imresize(image, [inputSize(1) inputSize(2)]);
+
+        % Add image to test set
+        testImages(:, :, :, pattern - trainValidationSize) = uint8(image);
     end
     
     % Classifying test patterns
@@ -160,8 +183,7 @@ for fold = 1 : folderNumber
     ACC(fold) = sum(b == y_fold_test) ./ length(y_fold_test);
 
     % Save whatever you need
-    %%%%%
-    
+    save('gravity_c3_f2.mat', 'netTransfer');
 end
 
 
