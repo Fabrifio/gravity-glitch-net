@@ -4,7 +4,7 @@ warning off
 
 % Load dataset
 datas = 1;
-load(strcat('DatasGravity', int2str(datas)), 'DATA');
+load(strcat('dataset/', 'DatasGravity', int2str(datas)), 'DATA');
 
 % Dataset order of patterns based on current fold (fold = row of indexes)
 datasetFolder = DATA{3};
@@ -22,6 +22,10 @@ testSize = totalSize - trainSize - valSize;
 x_true = DATA{1};
 y_true = DATA{2};
 
+% Network input image size
+% NOTE: different size with respect to paper for a faster training for testing
+inputSize = [280 340 3];
+
 % Load pre-trained AlexNet
 % netAlex = alexnet;
 % inputSize = [227 227];
@@ -32,50 +36,71 @@ y_true = DATA{2};
 % Load pre-trained AlexNet
 net = [
     % Input layer
-    imageInputLayer([210 250 3], 'Name', 'input')
+    imageInputLayer(inputSize, 'Name', 'input')
     
     % Pretrained transfer layers from AlexNet
-    %layersTransfer
+    % layersTransfer
 
     % Convolution layer 1
-    convolution2dLayer(5, 16, 'Padding', 'same', 'Name', 'conv1')
-    batchNormalizationLayer('Name', 'batchnorm5');
+    convolution2dLayer(5, 16, 'Padding', 'same', 'Name', 'conv1', 'WeightL2Factor', 2e-4, 'WeightsInitializer', 'glorot')
+    % TEST: evaluate later
+    % batchNormalizationLayer('Name', 'batchnorm5');
     reluLayer('Name', 'relu1');
     
     % Max-pooling 1
     maxPooling2dLayer(2, 'Stride', 2, 'Name', 'maxpool1');
 
+    % Dropout 1
+    dropoutLayer(0.5, 'Name', 'drop1');
+
     % Convolution layer 2
-    convolution2dLayer(5, 32, 'Padding', 'same', 'Name', 'conv2');
-    batchNormalizationLayer('Name', 'batchnorm5');
+    convolution2dLayer(5, 32, 'Padding', 'same', 'Name', 'conv2', 'WeightL2Factor', 2e-4, 'WeightsInitializer', 'glorot');
+    % TEST: evaluate later
+    % batchNormalizationLayer('Name', 'batchnorm5');
     reluLayer('Name', 'relu2');
 
     % Max-pooling 2
     maxPooling2dLayer(2, 'Stride', 2, 'Name', 'maxpool2');
+    % Dropout 2
+    dropoutLayer(0.5, 'Name', 'drop2');
 
     % Convolution layer 3
-    convolution2dLayer(5, 64, 'Padding', 'same', 'Name', 'conv3');
-    batchNormalizationLayer('Name', 'batchnorm5');
+    convolution2dLayer(5, 64, 'Padding', 'same', 'Name', 'conv3', 'WeightL2Factor', 2e-4, 'WeightsInitializer', 'glorot');
+    % TEST: evaluate later
+    % batchNormalizationLayer('Name', 'batchnorm5');
     reluLayer('Name', 'relu3');
 
     % Max-pooling 3
     maxPooling2dLayer(2, 'Stride', 2, 'Name', 'maxpool3');
+    % Dropout 3
+    dropoutLayer(0.5, 'Name', 'drop3');
+
+    % Convolution layer 4
+    convolution2dLayer(5, 64, 'Padding', 'same', 'Name', 'conv4', 'WeightL2Factor', 2e-4, 'WeightsInitializer', 'glorot');
+    % TEST: evaluate later
+    % batchNormalizationLayer('Name', 'batchnorm5');
+    reluLayer('Name', 'relu4');
+
+    % Max-pooling 4
+    maxPooling2dLayer(2, 'Stride', 2, 'Name', 'maxpool4');
+    % Dropout 4
+    dropoutLayer(0.5, 'Name', 'drop4');
 
     % Fully-connected layer 1
     fullyConnectedLayer(256, 'Name', 'fc1');
-    batchNormalizationLayer('Name', 'batchnorm5');
+    % TEST: evaluate later
+    % batchNormalizationLayer('Name', 'batchnorm5');
     reluLayer('Name', 'relu5');
-    dropoutLayer(0.5, 'Name', 'drop1');
+    % Dropout 5
+    dropoutLayer(0.5, 'Name', 'drop5');
 
     % Fully-connected layer 2 (Output layer)
     fullyConnectedLayer(22, 'Name', 'fc2');
     softmaxLayer('Name', 'softmax');
+
+    % Network output
     classificationLayer('Name', 'output');
 ];
-
-% Network input image size
-% NOTE: different size with respect to paper for a faster training for testing
-inputSize = [210 250 3];
 
 % For each folder
 for fold = 1 : folderNumber
@@ -183,7 +208,7 @@ for fold = 1 : folderNumber
     ACC(fold) = sum(b == y_fold_test) ./ length(y_fold_test);
 
     % Save whatever you need
-    save('gravity_c3_f2.mat', 'netTransfer');
+    save(strcat('models/gravity_d', int2str(datas), '_c3_f2.mat'), 'netTransfer');
 end
 
 

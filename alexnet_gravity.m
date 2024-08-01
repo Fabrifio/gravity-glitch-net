@@ -35,6 +35,7 @@ options = trainingOptions(optimizer,...
 numIterationsPerEpoch = floor(trainSize/miniBatchSize);
 
 % For each folder
+% TODO: replace with for on DATA
 for fold = 1 : folderNumber
     close all force
     
