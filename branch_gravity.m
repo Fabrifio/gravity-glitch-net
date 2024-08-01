@@ -2,60 +2,29 @@
 clear all
 warning off
 
-% Load dataset
-datas = 1;
-load(strcat('dataset/', 'DatasGravity', int2str(datas)), 'DATA');
-
-% Dataset order of patterns based on current fold (fold = row of indexes)
-datasetFolder = DATA{3};
-folderNumber = size(datasetFolder, 1);
-
-% Prepare dataset for split between training and test set
-totalSize = DATA{5};
-trainValidationSize = DATA{4};
-% Number of instances per dataset
-trainSize = floor(trainValidationSize * 0.9);
-valSize = trainValidationSize - trainSize;
-testSize = totalSize - trainSize - valSize;
-
-% Retrieve all patterns and labels
-x_true = DATA{1};
-y_true = DATA{2};
-
 % Network input image size
-% NOTE: different size with respect to paper for a faster training for testing
 inputSize = [280 340 3];
 
-% Load pre-trained AlexNet
-% netAlex = alexnet;
-% inputSize = [227 227];
+% Number of classes
+numClasses = 22;
 
-% Transfer of AlexNet pretrained layers
-% layersTransfer = netAlex.Layers(2 : 9);
-
-% Load pre-trained AlexNet
+% Network structure
 net = [
     % Input layer
     imageInputLayer(inputSize, 'Name', 'input')
-    
-    % Pretrained transfer layers from AlexNet
-    % layersTransfer
 
     % Convolution layer 1
-    convolution2dLayer(5, 16, 'Padding', 'same', 'Name', 'conv1', 'WeightL2Factor', 2e-4, 'WeightsInitializer', 'glorot')
-    % TEST: evaluate later
+    convolution2dLayer(5, 16, 'Padding', 'same', 'Name', 'conv1', 'WeightL2Factor', 2e-4)
     % batchNormalizationLayer('Name', 'batchnorm5');
     reluLayer('Name', 'relu1');
     
     % Max-pooling 1
     maxPooling2dLayer(2, 'Stride', 2, 'Name', 'maxpool1');
-
     % Dropout 1
     dropoutLayer(0.5, 'Name', 'drop1');
 
     % Convolution layer 2
-    convolution2dLayer(5, 32, 'Padding', 'same', 'Name', 'conv2', 'WeightL2Factor', 2e-4, 'WeightsInitializer', 'glorot');
-    % TEST: evaluate later
+    convolution2dLayer(5, 32, 'Padding', 'same', 'Name', 'conv2', 'WeightL2Factor', 2e-4);
     % batchNormalizationLayer('Name', 'batchnorm5');
     reluLayer('Name', 'relu2');
 
@@ -65,8 +34,7 @@ net = [
     dropoutLayer(0.5, 'Name', 'drop2');
 
     % Convolution layer 3
-    convolution2dLayer(5, 64, 'Padding', 'same', 'Name', 'conv3', 'WeightL2Factor', 2e-4, 'WeightsInitializer', 'glorot');
-    % TEST: evaluate later
+    convolution2dLayer(5, 64, 'Padding', 'same', 'Name', 'conv3', 'WeightL2Factor', 2e-4);
     % batchNormalizationLayer('Name', 'batchnorm5');
     reluLayer('Name', 'relu3');
 
@@ -76,8 +44,7 @@ net = [
     dropoutLayer(0.5, 'Name', 'drop3');
 
     % Convolution layer 4
-    convolution2dLayer(5, 64, 'Padding', 'same', 'Name', 'conv4', 'WeightL2Factor', 2e-4, 'WeightsInitializer', 'glorot');
-    % TEST: evaluate later
+    convolution2dLayer(5, 64, 'Padding', 'same', 'Name', 'conv4', 'WeightL2Factor', 2e-4);
     % batchNormalizationLayer('Name', 'batchnorm5');
     reluLayer('Name', 'relu4');
 
@@ -88,79 +55,78 @@ net = [
 
     % Fully-connected layer 1
     fullyConnectedLayer(256, 'Name', 'fc1');
-    % TEST: evaluate later
     % batchNormalizationLayer('Name', 'batchnorm5');
     reluLayer('Name', 'relu5');
     % Dropout 5
     dropoutLayer(0.5, 'Name', 'drop5');
 
-    % Fully-connected layer 2 (Output layer)
-    fullyConnectedLayer(22, 'Name', 'fc2');
+    % Fully-connected layer 2
+    fullyConnectedLayer(numClasses, 'Name', 'fc2');
     softmaxLayer('Name', 'softmax');
 
     % Network output
     classificationLayer('Name', 'output');
 ];
 
-% For each folder
-for fold = 1 : folderNumber
+% For each view dataset
+for datas = 1 : 4
     close all force
+
+    % Load dataset
+    load(strcat('dataset/', 'DatasGravity', int2str(datas)), 'DATA');
     
+    % Dataset order of patterns based on current fold (fold = row of indexes)
+    datasetFolder = DATA{3};
+    fold = 1;
+    
+    % Dataset sizes
+    totalSize = DATA{5};
+    trainValidationSize = DATA{4};
+    
+    % Number of instances per dataset
+    trainSize = floor(trainValidationSize * 0.5);
+    valSize = trainValidationSize - trainSize;
+    testSize = totalSize - trainSize - valSize;
+    
+    % Retrieve all patterns and labels
+    x_true = DATA{1};
+    y_true = DATA{2};
+    
+    % TODO: unique shuffle (two ideas) to solve the classes issue
     % Dataset train-validation-test split on current fold
-    % REMOVED: parenthesis
     trainPatternIndexes = datasetFolder(fold, 1 : trainSize);
     validationPatternIndexes = datasetFolder(fold, trainSize + 1 : trainValidationSize);
     testPatternIndexes = datasetFolder(fold, trainValidationSize + 1 : totalSize);
+    
     % Label indexes to pick
     y_fold_train = y_true(trainPatternIndexes);
     y_fold_validation = y_true(validationPatternIndexes);
     y_fold_test = y_true(testPatternIndexes);
     
-    % Number of possible classes
-    % CHANGE: from max(y_fold_train)
-    numClasses = 22;
-    
     % Create training set
-    % ADDITION: uint8 conversione to check
     clear trainingImages
     for pattern = 1 : trainSize
+        % Get image
         image = x_true{datasetFolder(fold, pattern)};
-        
-        % Rescale of image to a standard size for the CNN
+        % Rescale of image to a standard size for the network
         image = imresize(image, [inputSize(1) inputSize(2)]);
-
         % Add image to training set
         trainingImages(:, :, :, pattern) = uint8(image);
     end
 
-    % Get image size
-    imageSize = inputSize;
-
-    % Data augmentation
-    imageAugmenter = imageDataAugmenter(...
-        'RandXReflection', true, ...
-        'RandXScale', [1 2]);
-    trainingImages = augmentedImageDatastore(imageSize, trainingImages, categorical(y_fold_train'), 'DataAugmentation', imageAugmenter);
-    
-    % Net tuning
-    % The last three layers of the pretrained network net are configured for 1000 classes.
-    % These three layers must be fine-tuned for the new classification problem. Extract all layers, except the last three, from the pretrained network.
-    % layersTransfer = net.Layers(1 : end-3);
-    % layers = [
-    %    layersTransfer
-    %    fullyConnectedLayer(numClasses, 'WeightLearnRateFactor', 20, 'BiasLearnRateFactor', 20)
-    %    softmaxLayer
-    %    classificationLayer];
+    % TODO: evaluate addition
+    % Data augmentation of training set
+    % imageAugmenter = imageDataAugmenter('RandXReflection', true, 'RandXScale', [1 2]);
+    % trainingImages = augmentedImageDatastore(inputSize, trainingImages, categorical(y_fold_train'), 'DataAugmentation', imageAugmenter);
     
     % Create validation set
     clear validationImages
     for pattern = trainSize + 1 : trainValidationSize
+        % Get image
         image = x_true{datasetFolder(fold, pattern)};
-
-        % Rescale of image to a standard size for the CNN
+        % Rescale of image to a standard size for the network
         image = imresize(image, [inputSize(1) inputSize(2)]);
-
-        % Add image to test set
+        % Add image to validation set
         validationImages(:, :, :, pattern - trainSize) = uint8(image);
     end
 
@@ -180,20 +146,19 @@ for fold = 1 : folderNumber
         'Plots', 'training-progress', ...
         'Verbose', false);
 
-    % NOTE: useless?
-    % numIterationsPerEpoch = floor(trainSize/miniBatchSize);
-
-    % Network training
-    netTransfer = trainNetwork(trainingImages, net, options);
+    % Network training without image augmentation
+    netTransfer = trainNetwork(trainingImages, categorical(y_fold_train'), net, options);
+    % TODO: evaluate replacement
+    % Network training with image augmentation
+    % netTransfer = trainNetwork(trainingImages, net, options);
 
     % Create test set
     clear testImages
     for pattern = trainValidationSize + 1 : totalSize
+        % Get image
         image = x_true{datasetFolder(fold, pattern)};
-
-        % Rescale of image to a standard size for the CNN
+        % Rescale of image to a standard size for the network
         image = imresize(image, [inputSize(1) inputSize(2)]);
-
         % Add image to test set
         testImages(:, :, :, pattern - trainValidationSize) = uint8(image);
     end
@@ -201,13 +166,12 @@ for fold = 1 : folderNumber
     % Classifying test patterns
     [outclass, score{fold}] =  classify(netTransfer, testImages);
     
-    % For each pattern, get highest confidence and related class
+    % Get highest confidence and related class for each pattern
     [a, b] = max(score{fold}');
-
     % Get accuracy (correctly matched labels in test set divided by size)
-    ACC(fold) = sum(b == y_fold_test) ./ length(y_fold_test);
+    acc(fold) = sum(b == y_fold_test) ./ length(y_fold_test);
 
-    % Save whatever you need
+    % Save trained and validated model
     save(strcat('models/gravity_d', int2str(datas), '_c3_f2.mat'), 'netTransfer');
 end
 
