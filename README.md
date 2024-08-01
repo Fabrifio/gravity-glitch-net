@@ -13,5 +13,5 @@ The dataset is split in:
 - 667 instances for validation;
 - 1121 instances for test.
 
-### Link
+### Download link
 https://mega.nz/file/RAY2xDCC#Ky0WeV72GsHujEsWQ_w6AsS20-kKPFU9yNW9dLAdzA0
