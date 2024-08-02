@@ -76,15 +76,18 @@ for datas = 1 : 4
     load(strcat('dataset/', 'DatasGravity', int2str(datas)), 'DATA');
     
     % Dataset order of patterns based on current fold (fold = row of indexes)
-    datasetFolder = DATA{3};
-    fold = 1;
+    % Load a fold of the first dataset for all datasets
+    if(datas == 1)
+        datasetFolder = DATA{3};
+        fold = 1;
+    end
     
     % Dataset sizes
     totalSize = DATA{5};
     trainValidationSize = DATA{4};
     
     % Number of instances per dataset
-    trainSize = floor(trainValidationSize * 0.5);
+    trainSize = floor(trainValidationSize * 0.9);
     valSize = trainValidationSize - trainSize;
     testSize = totalSize - trainSize - valSize;
     
