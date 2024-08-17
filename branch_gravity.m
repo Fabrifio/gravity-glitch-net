@@ -14,48 +14,48 @@ net = [
     imageInputLayer(inputSize, 'Name', 'input')
 
     % Convolution layer 1
-    convolution2dLayer(5, 16, 'Padding', 'same', 'Name', 'conv1', 'WeightL2Factor', 2e-4)
-    % batchNormalizationLayer('Name', 'batchnorm5');
+    convolution2dLayer(5, 16, 'Padding', 'same', 'Name', 'conv1')
+    batchNormalizationLayer('Name', 'batchnorm1');
     reluLayer('Name', 'relu1');
     
     % Max-pooling 1
     maxPooling2dLayer(2, 'Stride', 2, 'Name', 'maxpool1');
     % Dropout 1
-    dropoutLayer(0.5, 'Name', 'drop1');
+    %dropoutLayer(0.5, 'Name', 'drop1');
 
     % Convolution layer 2
-    convolution2dLayer(5, 32, 'Padding', 'same', 'Name', 'conv2', 'WeightL2Factor', 2e-4);
-    % batchNormalizationLayer('Name', 'batchnorm5');
+    convolution2dLayer(5, 32, 'Padding', 'same', 'Name', 'conv2');
+    batchNormalizationLayer('Name', 'batchnorm2');
     reluLayer('Name', 'relu2');
 
     % Max-pooling 2
     maxPooling2dLayer(2, 'Stride', 2, 'Name', 'maxpool2');
     % Dropout 2
-    dropoutLayer(0.5, 'Name', 'drop2');
+    %dropoutLayer(0.5, 'Name', 'drop2');
 
     % Convolution layer 3
-    convolution2dLayer(5, 64, 'Padding', 'same', 'Name', 'conv3', 'WeightL2Factor', 2e-4);
-    % batchNormalizationLayer('Name', 'batchnorm5');
+    convolution2dLayer(5, 64, 'Padding', 'same', 'Name', 'conv3');
+    batchNormalizationLayer('Name', 'batchnorm3');
     reluLayer('Name', 'relu3');
 
     % Max-pooling 3
     maxPooling2dLayer(2, 'Stride', 2, 'Name', 'maxpool3');
     % Dropout 3
-    dropoutLayer(0.5, 'Name', 'drop3');
+    %dropoutLayer(0.5, 'Name', 'drop3');
 
     % Convolution layer 4
-    convolution2dLayer(5, 64, 'Padding', 'same', 'Name', 'conv4', 'WeightL2Factor', 2e-4);
-    % batchNormalizationLayer('Name', 'batchnorm5');
+    convolution2dLayer(5, 64, 'Padding', 'same', 'Name', 'conv4');
+    batchNormalizationLayer('Name', 'batchnorm4');
     reluLayer('Name', 'relu4');
 
     % Max-pooling 4
     maxPooling2dLayer(2, 'Stride', 2, 'Name', 'maxpool4');
     % Dropout 4
-    dropoutLayer(0.5, 'Name', 'drop4');
+    %dropoutLayer(0.5, 'Name', 'drop4');
 
     % Fully-connected layer 1
     fullyConnectedLayer(256, 'Name', 'fc1');
-    % batchNormalizationLayer('Name', 'batchnorm5');
+    batchNormalizationLayer('Name', 'batchnorm5');
     reluLayer('Name', 'relu5');
     % Dropout 5
     dropoutLayer(0.5, 'Name', 'drop5');
@@ -136,13 +136,16 @@ for datas = 1 : 4
     % Training parameters
     miniBatchSize = 30;
     maxEpochs = 30;
-    learningRate = 1e-4;
+    learningRate = 1e-3;
     optimizer = 'sgdm';
     valFrequency = 50;
     options = trainingOptions(optimizer, ...
         'MiniBatchSize', miniBatchSize, ...
         'MaxEpochs', maxEpochs, ...
         'InitialLearnRate', learningRate, ...
+        'LearnRateSchedule', 'piecewise', ...
+        'LearnRateDropPeriod', 15, ...
+        'LearnRateDropFactor', 0.1, ...
         'ValidationData', {validationImages, categorical(y_fold_validation')}, ...
         'ValidationFrequency', valFrequency, ...
         'OutputNetwork', 'best-validation', ...
@@ -175,7 +178,7 @@ for datas = 1 : 4
     acc(fold) = sum(b == y_fold_test) ./ length(y_fold_test);
 
     % Save trained and validated model
-    save(strcat('models/gravity_d', int2str(datas), '_c3_f2.mat'), 'netTransfer');
+    save(strcat('models/gravity_d', int2str(datas), '_c4_f2.mat'), 'netTransfer');
 end
 
 
