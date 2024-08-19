@@ -73,7 +73,7 @@ for datas = 1 : 4
     close all force
 
     % Load dataset
-    load(strcat('dataset/', 'DatasGravity', int2str(datas)), 'DATA');
+    load(strcat('dataset/DatasGravity', int2str(datas)), 'DATA');
     
     % Dataset order of patterns based on current fold (fold = row of indexes)
     % Load a fold of the first dataset for all datasets
