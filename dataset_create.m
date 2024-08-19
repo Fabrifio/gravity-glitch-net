@@ -6,8 +6,7 @@ warning off
 DATASET = cell(1, 5);
 
 % Create dataset
-% TODO: restore index
-for datas = 1 : 1 % 4
+for datas = 1 : 1
     % Network load
     NET = load(strcat('models\gravity_d', int2str(datas), '_c4_f2'));
     
@@ -41,5 +40,5 @@ for datas = 1 : 1 % 4
     save(strcat('dataset/DatasGravityFeatures', int2str(datas)), 'DATASET');
 
     % Clear variables
-    % clear NET DATA features
+    clear NET DATA features
 end
