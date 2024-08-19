@@ -181,4 +181,7 @@ for datas = 1 : 4
     save(strcat('models/gravity_d', int2str(datas), '_c4_f2.mat'), 'netTransfer');
 end
 
+%TODO: dataset generation 
+% for image in dataset:
+%  dataset_vector.append(activation(net, "fc1", image));
 
