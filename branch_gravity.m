@@ -95,7 +95,6 @@ for datas = 1 : 4
     x_true = DATA{1};
     y_true = DATA{2};
     
-    % TODO: unique shuffle (two ideas) to solve the classes issue
     % Dataset train-validation-test split on current fold
     trainPatternIndexes = datasetFolder(fold, 1 : trainSize);
     validationPatternIndexes = datasetFolder(fold, trainSize + 1 : trainValidationSize);
@@ -116,12 +115,7 @@ for datas = 1 : 4
         % Add image to training set
         trainingImages(:, :, :, pattern) = uint8(image);
     end
-
-    % TODO: evaluate addition
-    % Data augmentation of training set
-    % imageAugmenter = imageDataAugmenter('RandXReflection', true, 'RandXScale', [1 2]);
-    % trainingImages = augmentedImageDatastore(inputSize, trainingImages, categorical(y_fold_train'), 'DataAugmentation', imageAugmenter);
-    
+   
     % Create validation set
     clear validationImages
     for pattern = trainSize + 1 : trainValidationSize
@@ -154,9 +148,6 @@ for datas = 1 : 4
 
     % Network training without image augmentation
     netTransfer = trainNetwork(trainingImages, categorical(y_fold_train'), net, options);
-    % TODO: evaluate replacement
-    % Network training with image augmentation
-    % netTransfer = trainNetwork(trainingImages, net, options);
 
     % Create test set
     clear testImages
@@ -180,8 +171,3 @@ for datas = 1 : 4
     % Save trained and validated model
     save(strcat('models/gravity_d', int2str(datas), '_c4_f2.mat'), 'netTransfer');
 end
-
-%TODO: dataset generation 
-% for image in dataset:
-%  dataset_vector.append(activation(net, "fc1", image));
-
