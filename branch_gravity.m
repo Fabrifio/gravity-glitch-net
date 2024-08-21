@@ -20,8 +20,6 @@ net = [
     
     % Max-pooling 1
     maxPooling2dLayer(2, 'Stride', 2, 'Name', 'maxpool1');
-    % Dropout 1
-    %dropoutLayer(0.5, 'Name', 'drop1');
 
     % Convolution layer 2
     convolution2dLayer(5, 32, 'Padding', 'same', 'Name', 'conv2');
@@ -30,8 +28,6 @@ net = [
 
     % Max-pooling 2
     maxPooling2dLayer(2, 'Stride', 2, 'Name', 'maxpool2');
-    % Dropout 2
-    %dropoutLayer(0.5, 'Name', 'drop2');
 
     % Convolution layer 3
     convolution2dLayer(5, 64, 'Padding', 'same', 'Name', 'conv3');
@@ -40,8 +36,6 @@ net = [
 
     % Max-pooling 3
     maxPooling2dLayer(2, 'Stride', 2, 'Name', 'maxpool3');
-    % Dropout 3
-    %dropoutLayer(0.5, 'Name', 'drop3');
 
     % Convolution layer 4
     convolution2dLayer(5, 64, 'Padding', 'same', 'Name', 'conv4');
@@ -50,14 +44,13 @@ net = [
 
     % Max-pooling 4
     maxPooling2dLayer(2, 'Stride', 2, 'Name', 'maxpool4');
-    % Dropout 4
-    %dropoutLayer(0.5, 'Name', 'drop4');
 
     % Fully-connected layer 1
     fullyConnectedLayer(256, 'Name', 'fc1');
     batchNormalizationLayer('Name', 'batchnorm5');
     reluLayer('Name', 'relu5');
-    % Dropout 5
+
+    % Dropout 1
     dropoutLayer(0.5, 'Name', 'drop5');
 
     % Fully-connected layer 2
