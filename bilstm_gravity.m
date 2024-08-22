@@ -81,4 +81,76 @@ y_fold_validation = y_true(validationPatternIndexes);
 y_fold_test = y_true(testPatternIndexes);
 
 % Example of building a sentence
-x = [x_true{1}{1}; x_true{2}{1}; x_true{3}{1}; x_true{4}{1}];
+%x = [x_true{1}{1}; x_true{2}{1}; x_true{3}{1}; x_true{4}{1}];
+
+% Create training set
+trainingSequences = cell(1, trainSize);
+for pattern = 1 : trainSize
+    % Get sequence
+    sequence = [x_true{1}{datasetFolder(fold, pattern)}; 
+        x_true{2}{datasetFolder(fold, pattern)}; 
+        x_true{3}{datasetFolder(fold, pattern)}; 
+        x_true{4}{datasetFolder(fold, pattern)}];
+
+    % Transpose sequence
+    sequence = sequence';
+
+    % Add sequence to training set
+    trainingSequences{pattern} = sequence;
+end
+
+% Create validation set
+validationSequences = cell(1, trainValidationSize - trainSize);
+for pattern = trainSize + 1 : trainValidationSize
+    % Get sequence
+    sequence = [x_true{1}{datasetFolder(fold, pattern)}; x_true{2}{datasetFolder(fold, pattern)}; x_true{3}{datasetFolder(fold, pattern)}; x_true{4}{datasetFolder(fold, pattern)}];
+
+    % Transpose sequence
+    sequence = sequence';
+    
+    % Add sequence to validation set
+    validationSequences{pattern - trainSize} = sequence;
+end
+
+ % Training parameters
+miniBatchSize = 30;
+maxEpochs = 2;
+learningRate = 1e-3;
+optimizer = 'sgdm';
+valFrequency = 50;
+options = trainingOptions(optimizer, ...
+        'MiniBatchSize', miniBatchSize, ...
+        'MaxEpochs', maxEpochs, ...
+        'InitialLearnRate', learningRate, ...
+        'ValidationData', {validationSequences, categorical(y_fold_validation')}, ...
+        'ValidationFrequency', valFrequency, ...
+        'OutputNetwork', 'best-validation', ...
+        'Plots', 'training-progress', ...
+        'Verbose', false);
+
+% Network training without image augmentation
+netTransfer = trainNetwork(trainingSequences, categorical(y_fold_train'), net, options);
+
+% Create test set
+testSequences = cell(1, testSize);
+for pattern = trainValidationSize + 1 : totalSize
+    % Get sequence
+    sequence = [x_true{1}{datasetFolder(fold, pattern)}; x_true{2}{datasetFolder(fold, pattern)}; x_true{3}{datasetFolder(fold, pattern)}; x_true{4}{datasetFolder(fold, pattern)}];
+
+    % Transpose sequence
+    sequence = sequence';
+    
+    % Add sequence to test set
+    testSequences{pattern - trainValidationSize} = sequence;
+end
+    
+% Classifying test patterns
+[outclass, score{fold}] =  classify(netTransfer, testSequences);
+    
+% Get highest confidence and related class for each pattern
+[a, b] = max(score{fold}');
+% Get accuracy (correctly matched labels in test set divided by size)
+acc(fold) = sum(b == y_fold_test) ./ length(y_fold_test);
+
+% Save trained and validated model
+save('models/gravity_bilstm.mat', 'netTransfer');
