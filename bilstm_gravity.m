@@ -80,9 +80,6 @@ y_fold_train = y_true(trainPatternIndexes);
 y_fold_validation = y_true(validationPatternIndexes);
 y_fold_test = y_true(testPatternIndexes);
 
-% Example of building a sentence
-%x = [x_true{1}{1}; x_true{2}{1}; x_true{3}{1}; x_true{4}{1}];
-
 % Create training set
 trainingSequences = cell(1, trainSize);
 for pattern = 1 : trainSize
