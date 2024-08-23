@@ -18,7 +18,7 @@ net = [
 
     % Fully connected layer 1
     fullyConnectedLayer(numHiddenUnits, 'Name', 'fc1')
-    reluLayer('Name', '');
+    reluLayer('Name', 'relu');
 
     % Fully connected layer 2
     fullyConnectedLayer(numClasses, 'Name', 'fc2')
@@ -148,4 +148,4 @@ end
 acc(fold) = sum(b == y_fold_test) ./ length(y_fold_test);
 
 % Save trained and validated model
-save('models/gravity_bilstm.mat', 'netTransfer');
+save('models/gravity_mlp.mat', 'netTransfer');
