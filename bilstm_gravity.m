@@ -18,6 +18,10 @@ net = [
 
     % BiLSTM layer
     bilstmLayer(numHiddenUnits, OutputMode="last", Name='bilstm')
+    batchNormalizationLayer('Name', 'batchnorm')
+    
+    % Dropout
+    dropoutLayer(0.5, 'Name', 'drop')
 
     % Fully connected layer
     fullyConnectedLayer(numClasses, 'Name', 'fc')
@@ -45,8 +49,10 @@ for datas = 1 : 4
     load(strcat('dataset/DatasGravityFeatures', int2str(datas)), 'DATASET');
 
     % Store dataset patterns
-    x_true{datas} = DATASET{1}; 
-    
+    if datas ~= 1
+        x_true{datas - 1} = DATASET{1}; 
+    end
+
     % Save common dataset info
     if datas == 1
         % Get true labels
@@ -86,8 +92,7 @@ for pattern = 1 : trainSize
     % Get sequence
     sequence = [x_true{1}{datasetFolder(fold, pattern)}; 
         x_true{2}{datasetFolder(fold, pattern)}; 
-        x_true{3}{datasetFolder(fold, pattern)}; 
-        x_true{4}{datasetFolder(fold, pattern)}];
+        x_true{3}{datasetFolder(fold, pattern)}];
 
     % Transpose sequence
     sequence = sequence';
@@ -100,7 +105,9 @@ end
 validationSequences = cell(1, trainValidationSize - trainSize);
 for pattern = trainSize + 1 : trainValidationSize
     % Get sequence
-    sequence = [x_true{1}{datasetFolder(fold, pattern)}; x_true{2}{datasetFolder(fold, pattern)}; x_true{3}{datasetFolder(fold, pattern)}; x_true{4}{datasetFolder(fold, pattern)}];
+    sequence = [x_true{1}{datasetFolder(fold, pattern)}; 
+        x_true{2}{datasetFolder(fold, pattern)}; 
+        x_true{3}{datasetFolder(fold, pattern)}];
 
     % Transpose sequence
     sequence = sequence';
@@ -111,7 +118,7 @@ end
 
 % Training parameters
 miniBatchSize = 30;
-maxEpochs = 2;
+maxEpochs = 30;
 learningRate = 1e-3;
 optimizer = 'sgdm';
 valFrequency = 50;
@@ -119,9 +126,12 @@ options = trainingOptions(optimizer, ...
         'MiniBatchSize', miniBatchSize, ...
         'MaxEpochs', maxEpochs, ...
         'InitialLearnRate', learningRate, ...
+        'LearnRateSchedule', 'piecewise', ...
+        'LearnRateDropPeriod', 15, ...
+        'LearnRateDropFactor', 0.1, ...
         'ValidationData', {validationSequences, categorical(y_fold_validation')}, ...
         'ValidationFrequency', valFrequency, ...
-        'OutputNetwork', 'best-validation', ...
+        'OutputNetwork', 'last-iteration', ...
         'Plots', 'training-progress', ...
         'Verbose', false);
 
@@ -132,7 +142,9 @@ netTransfer = trainNetwork(trainingSequences, categorical(y_fold_train'), net, o
 testSequences = cell(1, testSize);
 for pattern = trainValidationSize + 1 : totalSize
     % Get sequence
-    sequence = [x_true{1}{datasetFolder(fold, pattern)}; x_true{2}{datasetFolder(fold, pattern)}; x_true{3}{datasetFolder(fold, pattern)}; x_true{4}{datasetFolder(fold, pattern)}];
+    sequence = [x_true{1}{datasetFolder(fold, pattern)}; 
+        x_true{2}{datasetFolder(fold, pattern)}; 
+        x_true{3}{datasetFolder(fold, pattern)}];
 
     % Transpose sequence
     sequence = sequence';
