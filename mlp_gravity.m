@@ -3,24 +3,25 @@ clear all
 warning off
 
 % Network time step size of input sequence
-inputSize = 256;
+inputSize = 1024;
 
 % Number of classes
 numClasses = 22;
 
 % Network hyperparameters
-numHiddenUnits = 128;
+numHiddenUnits = 256;
 
 % Network structure
 net = [
     % Input layer
-    sequenceInputLayer(inputSize, 'Name', 'input')
+    featureInputLayer(inputSize, 'Name', 'input')
 
-    % BiLSTM layer
-    bilstmLayer(numHiddenUnits, OutputMode="last", Name='bilstm')
+    % Fully connected layer 1
+    fullyConnectedLayer(numHiddenUnits, 'Name', 'fc1')
+    reluLayer('Name', '');
 
-    % Fully connected layer
-    fullyConnectedLayer(numClasses, 'Name', 'fc')
+    % Fully connected layer 2
+    fullyConnectedLayer(numClasses, 'Name', 'fc2')
     softmaxLayer
 
     % Classification layer
@@ -81,32 +82,29 @@ y_fold_validation = y_true(validationPatternIndexes);
 y_fold_test = y_true(testPatternIndexes);
 
 % Create training set
-trainingSequences = cell(1, trainSize);
+clear trainingSequences
 for pattern = 1 : trainSize
     % Get sequence
-    sequence = [x_true{1}{datasetFolder(fold, pattern)}; 
-        x_true{2}{datasetFolder(fold, pattern)}; 
-        x_true{3}{datasetFolder(fold, pattern)}; 
-        x_true{4}{datasetFolder(fold, pattern)}];
-
-    % Transpose sequence
-    sequence = sequence';
+    sequence = [x_true{1}{datasetFolder(fold, pattern)}'; 
+        x_true{2}{datasetFolder(fold, pattern)}'; 
+        x_true{3}{datasetFolder(fold, pattern)}'; 
+        x_true{4}{datasetFolder(fold, pattern)}'];
 
     % Add sequence to training set
-    trainingSequences{pattern} = sequence;
+    trainingSequences(pattern, :) = sequence;
 end
 
 % Create validation set
-validationSequences = cell(1, trainValidationSize - trainSize);
+clear validationSequences
 for pattern = trainSize + 1 : trainValidationSize
     % Get sequence
-    sequence = [x_true{1}{datasetFolder(fold, pattern)}; x_true{2}{datasetFolder(fold, pattern)}; x_true{3}{datasetFolder(fold, pattern)}; x_true{4}{datasetFolder(fold, pattern)}];
+    sequence = [x_true{1}{datasetFolder(fold, pattern)}'; 
+        x_true{2}{datasetFolder(fold, pattern)}'; 
+        x_true{3}{datasetFolder(fold, pattern)}'; 
+        x_true{4}{datasetFolder(fold, pattern)}'];
 
-    % Transpose sequence
-    sequence = sequence';
-    
     % Add sequence to validation set
-    validationSequences{pattern - trainSize} = sequence;
+    validationSequences(pattern - trainSize, :) = sequence;
 end
 
 % Training parameters
@@ -129,21 +127,21 @@ options = trainingOptions(optimizer, ...
 netTransfer = trainNetwork(trainingSequences, categorical(y_fold_train'), net, options);
 
 % Create test set
-testSequences = cell(1, testSize);
+clear testSequences;
 for pattern = trainValidationSize + 1 : totalSize
     % Get sequence
-    sequence = [x_true{1}{datasetFolder(fold, pattern)}; x_true{2}{datasetFolder(fold, pattern)}; x_true{3}{datasetFolder(fold, pattern)}; x_true{4}{datasetFolder(fold, pattern)}];
+    sequence = [x_true{1}{datasetFolder(fold, pattern)}'; 
+        x_true{2}{datasetFolder(fold, pattern)}'; 
+        x_true{3}{datasetFolder(fold, pattern)}'; 
+        x_true{4}{datasetFolder(fold, pattern)}'];
 
-    % Transpose sequence
-    sequence = sequence';
-    
     % Add sequence to test set
-    testSequences{pattern - trainValidationSize} = sequence;
+    testSequences(pattern - trainValidationSize, :) = sequence;
 end
-    
+
 % Classifying test patterns
 [outclass, score{fold}] =  classify(netTransfer, testSequences);
-    
+ 
 % Get highest confidence and related class for each pattern
 [a, b] = max(score{fold}');
 % Get accuracy (correctly matched labels in test set divided by size)
