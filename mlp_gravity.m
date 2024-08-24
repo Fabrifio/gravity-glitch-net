@@ -1,9 +1,9 @@
-% Code settings 
+% Code settings
 clear all
 warning off
 
 % Network time step size of input sequence
-inputSize = 1024;
+inputSize = 768;
 
 % Number of classes
 numClasses = 22;
@@ -18,10 +18,10 @@ net = [
 
     % Fully connected layer 1
     fullyConnectedLayer(numHiddenUnits, 'Name', 'fc1')
-    reluLayer('Name', 'relu');
+    reluLayer('Name', 'relu')
 
     % Dropout 1
-    dropoutLayer(0.5, 'Name', 'drop5');
+    dropoutLayer(0.5, 'Name', 'drop')
 
     % Fully connected layer 2
     fullyConnectedLayer(numClasses, 'Name', 'fc2')
@@ -49,7 +49,9 @@ for datas = 1 : 4
     load(strcat('dataset/DatasGravityFeatures', int2str(datas)), 'DATASET');
 
     % Store dataset patterns
-    x_true{datas} = DATASET{1}; 
+    if datas ~= 1
+        x_true{datas - 1} = DATASET{1}; 
+    end
     
     % Save common dataset info
     if datas == 1
@@ -90,8 +92,7 @@ for pattern = 1 : trainSize
     % Get sequence
     sequence = [x_true{1}{datasetFolder(fold, pattern)}'; 
         x_true{2}{datasetFolder(fold, pattern)}'; 
-        x_true{3}{datasetFolder(fold, pattern)}'; 
-        x_true{4}{datasetFolder(fold, pattern)}'];
+        x_true{3}{datasetFolder(fold, pattern)}';];
 
     % Add sequence to training set
     trainingSequences(pattern, :) = sequence;
@@ -103,8 +104,7 @@ for pattern = trainSize + 1 : trainValidationSize
     % Get sequence
     sequence = [x_true{1}{datasetFolder(fold, pattern)}'; 
         x_true{2}{datasetFolder(fold, pattern)}'; 
-        x_true{3}{datasetFolder(fold, pattern)}'; 
-        x_true{4}{datasetFolder(fold, pattern)}'];
+        x_true{3}{datasetFolder(fold, pattern)}';];
 
     % Add sequence to validation set
     validationSequences(pattern - trainSize, :) = sequence;
@@ -138,8 +138,7 @@ for pattern = trainValidationSize + 1 : totalSize
     % Get sequence
     sequence = [x_true{1}{datasetFolder(fold, pattern)}'; 
         x_true{2}{datasetFolder(fold, pattern)}'; 
-        x_true{3}{datasetFolder(fold, pattern)}'; 
-        x_true{4}{datasetFolder(fold, pattern)}'];
+        x_true{3}{datasetFolder(fold, pattern)}';];
 
     % Add sequence to test set
     testSequences(pattern - trainValidationSize, :) = sequence;
