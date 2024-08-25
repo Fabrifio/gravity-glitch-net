@@ -1,9 +1,11 @@
 # Gravity glitch network
-We propose a deep neural network designed for the classification of glitches in spectrogram images of gravitational waves. 
+Deep neural network designed for the classification of glitches in spectrogram images of gravitational waves. 
 
 Each gravitational wave is associated with a set of four time-frequency images, each differing in time window length. The images with the shortest time window were discarded due to the poor performance in test with trained CNN w.r.t. other time windows.
 
-The network consists of two main parts: the first part employs three parallel CNNs, each processing the same time-frequency image captured with different time windows. The second part, responsible for the classification task, follows two possible approaches: a BiLSTM to capture dependencies between features from different time-windows, or a fully connected layer to capture dependencies by aggregating the features of all the time-windows. 
+The network consists of two main parts: the first part employs three parallel CNNs, each processing the same time-frequency image captured with different time windows. The second part, responsible for the classification task, follows two possible approaches: a BiLSTM to capture dependencies between features from different time-windows, or a fully connected layer to capture dependencies by aggregating the features of all the time-windows.
+
+Both network architectures acheived the same test accuracy.
 
 ## Dataset
 The dataset is composed by time-frquency spectrogram images of gravitational waves affected by random noise, causing the presence of glitches. Each gravitational wave is captured by four images with different time windows.
