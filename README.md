@@ -19,3 +19,6 @@ The dataset is split in:
 
 ### Download link
 https://mega.nz/file/RAY2xDCC#Ky0WeV72GsHujEsWQ_w6AsS20-kKPFU9yNW9dLAdzA0
+
+### Overleaf paper link
+https://www.overleaf.com/4625382329nxbkqbskjqyw#866409
