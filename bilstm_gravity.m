@@ -2,6 +2,9 @@
 clear all
 warning off
 
+% Set seed for better experimental reproducibility
+rng(42);
+
 % Network time step size of input sequence
 inputSize = 256;
 
