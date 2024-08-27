@@ -3,16 +3,16 @@ clear all
 warning off
 
 % Choose network
-netChoice = input('Choose network:\n 0 = MLP (default)\n 1 = BiLSTM\n');
+netChoice = input('Choose network:\n 0 = SLP (default)\n 1 = BiLSTM\n');
 
 % Check network choice
 if netChoice == 0
-    str = 'mlp';
+    str = 'slp';
 elseif netChoice == 1
     str = 'bilstm';
 elseif isempty(netChoice)
     netChoice = 0;
-    str = 'mlp';
+    str = 'slp';
 else
     error('Invalid choice');
 end

@@ -156,4 +156,4 @@ end
 acc(fold) = sum(b == y_fold_test) ./ length(y_fold_test);
 
 % Save trained and validated model
-save('models/gravity_mlp.mat', 'netTransfer');
+save('models/gravity_slp.mat', 'netTransfer');
