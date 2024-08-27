@@ -2,6 +2,9 @@
 clear all
 warning off
 
+% Set seed for better experimental reproducibility
+rng(42);
+
 % Network input image size
 inputSize = [280 340 3];
 
