@@ -5,7 +5,7 @@ Each gravitational wave is associated with a set of four time-frequency images, 
 
 The network consists of two main parts: the first part employs three parallel CNNs, each processing the same time-frequency image captured with different time windows. The second part, responsible for the classification task, follows two possible approaches: a BiLSTM to capture dependencies between features from different time-windows, or a fully connected layer to capture dependencies by aggregating the features of all the time-windows.
 
-Both network architectures acheived the same test accuracy.
+Both network architectures achieved the same test accuracy.
 
 ## Dataset
 The dataset is composed by time-frquency spectrogram images of gravitational waves affected by random noise, causing the presence of glitches. Each gravitational wave is captured by four images with different time windows.
