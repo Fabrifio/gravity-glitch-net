@@ -7,7 +7,7 @@ The network consists of two main parts: the first part employs three parallel CN
 
 Both network architectures achieved the same test accuracy.
 
-### Overleaf paper link
+### Paper link
 https://www.overleaf.com/4625382329nxbkqbskjqyw#866409
 
 ## Dataset
