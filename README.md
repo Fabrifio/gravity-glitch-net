@@ -7,8 +7,11 @@ The network consists of two main parts: the first part employs three parallel CN
 
 Both network architectures achieved the same test accuracy.
 
+### Overleaf paper link
+https://www.overleaf.com/4625382329nxbkqbskjqyw#866409
+
 ## Dataset
-The dataset is composed by time-frquency spectrogram images of gravitational waves affected by random noise, causing the presence of glitches. Each gravitational wave is captured by four images with different time windows.
+The dataset is composed by time-frequency spectrogram images of gravitational waves affected by random noise, causing the presence of glitches. Each gravitational wave is captured by four images with different time windows.
 
 It includes 7881 instances with label from 22 classes.
 
@@ -19,6 +22,3 @@ The dataset is split in:
 
 ### Download link
 https://mega.nz/file/RAY2xDCC#Ky0WeV72GsHujEsWQ_w6AsS20-kKPFU9yNW9dLAdzA0
-
-### Overleaf paper link
-https://www.overleaf.com/4625382329nxbkqbskjqyw#866409
