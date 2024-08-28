@@ -5,7 +5,7 @@ Each gravitational wave is associated with a set of four time-frequency images, 
 
 The network consists of two main parts: the first part employs three parallel CNNs, each processing the same time-frequency image captured with different time windows. The second part, responsible for the classification task, follows two possible approaches: a BiLSTM to capture dependencies between features from different time-windows, or a Single Layer Perceptron (SLP) to capture dependencies by aggregating the features of all the time-windows.
 
-Both network architectures achieved the same test accuracy.
+The SLP achieved a test accuracy of 0.9691, surpassing the BiLSTM model's score of 0.9674.
 
 ### Paper link
 https://www.overleaf.com/4625382329nxbkqbskjqyw#866409
