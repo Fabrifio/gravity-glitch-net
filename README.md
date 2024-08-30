@@ -7,14 +7,7 @@ In this work, the Gravity Spy dataset is presented and used for the classificati
 In this work we compare two deep learning network designs for glitch classification.
 Both approaches consists in an initial set of three CNNs, each processing images associated to a specific time window to extract feature vectors. On the second part, which performs the classification task, the first approach uses a Single-layer Perceptron (SLP) network, while the second approach uses a Bidirectional LSTM (BiLSTM) network. The proposals achieve high performance score while converging quickly, reducing training time and allowing room for future improvements.
 
-# Gravity Glitch Network
-Deep neural network designed for the classification of glitches in spectrogram images of gravitational waves. 
-
-Each gravitational wave is associated with a set of four time-frequency images, each differing in time window length. The images with the shortest time window were discarded due to the poor performance in test with trained CNN with respect to other time windows.
-
-The network consists of two main parts: the first part employs three parallel CNNs, each processing the same time-frequency image captured with different time windows. The second part, responsible for the classification task, follows two possible approaches: a BiLSTM to capture dependencies between features from different time-windows, or a Single Layer Perceptron (SLP) to capture dependencies by aggregating the features of all the time-windows.
-
-The SLP achieved a test accuracy of 0.9691, slightly surpassing the BiLSTM model's score of 0.9674.
+The SLP achieved a test accuracy of 0.9682, slightly surpassing the BiLSTM model's score of 0.9674.
 
 ## Dataset
 The dataset is composed by time-frequency spectrogram images of gravitational waves affected by random noise, causing the presence of glitches. Each gravitational wave is captured by four images with different time windows.
@@ -25,6 +18,18 @@ The dataset is split in:
 - 6093 instances for training;
 - 667 instances for validation;
 - 1121 instances for test.
+
+# Repository structure
+- /models is the folder containing the CNNs, BiLSTM and SLP models after training.
+- /dataset is the folder containing the initial dataset partitioned in four parts, each associated with glitch images with a specific time window, and the four datasets of feature vectors. 
+
+# Execution guide
+In order to perform the training of all the CNNs and of the BiLSTM and SLP, the execution must follow these steps:
+
+1. Run the branch_gravity.m program to train the four CNNs, one for each glitch time window.
+2. Once the CNNs are saved in /models, run dataset_create.m to create the four datasets of feature vectors, each related to glitches of a specific time window.
+3. Run the bilstm_gravity.m and slp_gravity.m to train respectively the BiLSTM and SLP models.
+4. Run met_metrics.m to test the performance of either or both the BiLSTM and SLP models, with also the plot of the confusion matrix. 
 
 ### Download Link
 https://mega.nz/file/RAY2xDCC#Ky0WeV72GsHujEsWQ_w6AsS20-kKPFU9yNW9dLAdzA0
