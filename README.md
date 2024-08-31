@@ -9,11 +9,6 @@ Both approaches consists in an initial set of three CNNs, each processing images
 
 The SLP achieved a test accuracy of 0.9682, slightly surpassing the BiLSTM model's score of 0.9674.
 
-
-# Repository Structure
-- `/models` is the folder containing the CNNs, BiLSTM and SLP models after training.
-- `/dataset` is the folder containing the initial dataset partitioned in four parts, each associated with glitch images with a specific time window, and the four datasets of feature vectors. 
-
 ## Dataset
 The dataset is composed by time-frequency spectrogram images of gravitational waves affected by random noise, causing the presence of glitches. Each gravitational wave is captured by four images with different time windows.
 
@@ -26,6 +21,10 @@ The dataset is split in:
 
 ### Download Link
 https://mega.nz/file/RAY2xDCC#Ky0WeV72GsHujEsWQ_w6AsS20-kKPFU9yNW9dLAdzA0
+
+# Repository Structure
+- `/models` is the folder containing the CNNs, BiLSTM and SLP models after training.
+- `/dataset` is the folder containing the initial dataset partitioned in four parts, each associated with glitch images with a specific time window, and the four datasets of feature vectors. 
 
 # Execution Guide
 In order to perform the training of all the CNNs and of the BiLSTM and SLP, the execution must follow these steps:
