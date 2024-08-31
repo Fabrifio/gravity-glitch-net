@@ -1,8 +1,5 @@
 # Dataset
-dataset/
-
-# Models
-models/
-
-# Matlab
-*.asv 
+dataset/DatasGravity1.mat
+dataset/DatasGravity2.mat
+dataset/DatasGravity3.mat
+dataset/DatasGravity4.mat
