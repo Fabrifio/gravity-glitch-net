@@ -31,7 +31,7 @@ In order to perform the training of all the CNNs and of the BiLSTM and SLP, the 
 
 1. Run the `branch_gravity.m` program to train the four CNNs, one for each glitch time window;
 2. Once the CNNs are saved in `/models`, run `dataset_create.m` to create the four datasets of feature vectors, each related to glitches of a specific time window;
-3. Run the `bilstm_gravity.m` and `slp_gravity.m` to train respectively the BiLSTM and SLP models;
+3. Run `bilstm_gravity.m` and `slp_gravity.m` to train respectively the BiLSTM and SLP models;
 4. Run `met_metrics.m` to test the performance of either or both the BiLSTM and SLP models, with also the plot of the confusion matrix. 
 
 # Authors
