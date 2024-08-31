@@ -26,7 +26,7 @@ https://mega.nz/file/RAY2xDCC#Ky0WeV72GsHujEsWQ_w6AsS20-kKPFU9yNW9dLAdzA0
 - `/models` is the folder containing the CNNs, BiLSTM and SLP models after training.
 - `/dataset` is the folder containing the initial dataset partitioned in four parts, each associated with glitch images with a specific time window, and the four datasets of feature vectors. 
 
-# Execution Guide
+# Execution steps for model training and validation 
 In order to perform the training of all the CNNs and of the BiLSTM and SLP, the execution must follow these steps:
 
 1. Run the `branch_gravity.m` program to train the four CNNs, one for each glitch time window;
