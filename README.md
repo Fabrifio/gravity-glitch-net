@@ -9,6 +9,11 @@ Both approaches consists in an initial set of three CNNs, each processing images
 
 The SLP achieved a test accuracy of 0.9682, slightly surpassing the BiLSTM model's score of 0.9674.
 
+
+# Repository Structure
+- `/models` is the folder containing the CNNs, BiLSTM and SLP models after training.
+- `/dataset` is the folder containing the initial dataset partitioned in four parts, each associated with glitch images with a specific time window, and the four datasets of feature vectors. 
+
 ## Dataset
 The dataset is composed by time-frequency spectrogram images of gravitational waves affected by random noise, causing the presence of glitches. Each gravitational wave is captured by four images with different time windows.
 
@@ -19,20 +24,16 @@ The dataset is split in:
 - 667 instances for validation;
 - 1121 instances for test.
 
-# Repository structure
-- /models is the folder containing the CNNs, BiLSTM and SLP models after training.
-- /dataset is the folder containing the initial dataset partitioned in four parts, each associated with glitch images with a specific time window, and the four datasets of feature vectors. 
-
-# Execution guide
-In order to perform the training of all the CNNs and of the BiLSTM and SLP, the execution must follow these steps:
-
-1. Run the branch_gravity.m program to train the four CNNs, one for each glitch time window.
-2. Once the CNNs are saved in /models, run dataset_create.m to create the four datasets of feature vectors, each related to glitches of a specific time window.
-3. Run the bilstm_gravity.m and slp_gravity.m to train respectively the BiLSTM and SLP models.
-4. Run met_metrics.m to test the performance of either or both the BiLSTM and SLP models, with also the plot of the confusion matrix. 
-
 ### Download Link
 https://mega.nz/file/RAY2xDCC#Ky0WeV72GsHujEsWQ_w6AsS20-kKPFU9yNW9dLAdzA0
+
+# Execution Guide
+In order to perform the training of all the CNNs and of the BiLSTM and SLP, the execution must follow these steps:
+
+1. Run the `branch_gravity.m` program to train the four CNNs, one for each glitch time window;
+2. Once the CNNs are saved in `/models`, run `dataset_create.m` to create the four datasets of feature vectors, each related to glitches of a specific time window;
+3. Run the `bilstm_gravity.m` and `slp_gravity.m` to train respectively the BiLSTM and SLP models;
+4. Run `met_metrics.m` to test the performance of either or both the BiLSTM and SLP models, with also the plot of the confusion matrix. 
 
 # Authors
 - Federico Pivotto, 2121720
